@@ -2,12 +2,14 @@ clear all
 close all
 pkg load signal
 
-mode = 'both'; 
+mode = 'show'; 
 % proces
 % show
 % both
 
-conf.filename = 'short570';
+##conf.filename = 'short';
+##conf.lename = 'short570b';
+conf.filename = 'short762M4';
 
 % Define conditions  
 [conf, data] = init(conf);
@@ -16,9 +18,8 @@ conf.filename = 'short570';
 if ( strcmp(mode,'process') || strcmp(mode,'both') )
   
 process(conf, data)
-
+clear data
 end
-
 %% Show
 if ( strcmp(mode,'show') || strcmp(mode,'both') )
   

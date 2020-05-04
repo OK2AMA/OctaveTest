@@ -30,6 +30,7 @@ conf.Fs = 4e6; % [Hz]
 conf.Fc = 570e6; % [Hz]
 conf.MaxDist = 300e3; %  [m]
 conf.MaxSpeedKmH = 9e3; % [km/h]
+conf.OnePartLen = 14e6;
 
 full_filename = [conf.filename, '.bin']
 file = fopen(full_filename);
@@ -43,13 +44,18 @@ conf.c0 = 3e8;
 conf.SpaceResolution = conf.Ts * conf.c0; % s = t*v // t = s/v
 conf.MaxBins = ceil( conf.MaxDist / conf.SpaceResolution);
 conf.MaxSpeedMS = conf.MaxSpeedKmH * 3.6 ; % m/s
+conf.length = size(data,1);
 
+
+parts = round(conf.length /conf.OnePartLen);
+reziduum = mod(length(data),parts)
+data(end-reziduum+1:end)=[];
+data = reshape(data,[],parts);
 
 conf.length = size(data,1);
-conf.n_cycle = 1;
+conf.n_cycle = size(data,2)
 
-
-conf.f_list = -80:1:80;
+conf.f_list = -80:0.5:80;
 
 fprintf('\nMaximum I : %3.0f, R : %3.0f. \n',max(imag(data)),max(real(data)));
 

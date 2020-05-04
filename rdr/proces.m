@@ -19,7 +19,6 @@ SpaceResolution = Ts * c0; % s = t*v // t = s/v
 MaxBins = ceil( MaxDist / SpaceResolution);
 MaxSpeedMS = MaxSpeedKmH * 3.6 ; % m/s
 
-
 length = size(data,1);
 n_cycle = 1;
 

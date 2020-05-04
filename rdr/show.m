@@ -29,9 +29,17 @@ load ("-v6",  full_filename);
 
 out.data = log10(out.data);
 
-figure();
-image(out.data,'CDataMapping','scaled');
+% saturate
+##out.data = min(15, max(9.5, out.data));
+#conf.n_cycle = 1;
+figure(1);
+for i = 1 : out.conf.n_cycle
+image(out.data(:,:,i),'CDataMapping','scaled');
 xlabel('Speed')
 ylabel('Distance')
 title('Passive radar chart.')
+pause(1)
+end
+figure(2)
+hist(out.data(:,:,1),100)
 end
