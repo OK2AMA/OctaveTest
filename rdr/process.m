@@ -23,36 +23,34 @@
 ## Author: jakub <jakub@kubax220>
 ## Created: 2020-04-15
 
-function show(conf)
+function conf = process(conf,data)
+pkg load signal
+
+t = 0:conf.Ts : conf.length*conf.Ts;
+t = t(1:end-1);
+t = t';
+
+
+for cycle = 1:conf.n_cycle
+   iq = double(data(1:end,cycle));
+
+   for f_n = 1:numel(conf.f_list)
+##      temp = exp(1i*2*pi*f_list(f_n)*t);
+      disp(conf.f_list(f_n));
+      temp = abs(xcorr(iq,iq .* exp(1i*2*pi*conf.f_list(f_n)*t),conf.MaxBins ,'none'));
+#      temp = min(MaxLev, max(0,temp));
+#      temp = log(temp);
+      temp_v(:,f_n,cycle) = single(temp);
+   end
+end
+
+out.conf = conf;
+out.data = temp_v;
 full_filename = [conf.filename, '_temp.mat']
-load ("-v6",  full_filename);
+save ("-v6",  full_filename, "out");
 
-if 1
-out.data = log10(out.data);
-##out.data = min(15, max(9.5, out.data));
-else
-out.data = min(1e11, max(9.5, out.data));
+##save(temp_v,'temp_xcorr.mat')
 
-end
-% saturate
-##out.data = min(15, max(9.5, out.data));
-#conf.n_cycle = 1;
-figure(1);
-for i = 1 : out.conf.n_cycle
-image(out.data(:,:,i),'CDataMapping','scaled');
-xlabel('Speed')
-ylabel('Distance')
-title('Passive radar chart.')
-label =[conf.filename, '_', num2str(i),'.png'];
-saveas (1, label);
-pause(1)
-
-print animation.pdf -append
-end
-im = imread ("animation.pdf", "Index", "all");
-imwrite (im, "animation.gif", "DelayTime", .5)
-
-figure(2)
-hist(out.data(:,:,1),100);
-grid on;
-end
+##figure()
+##image(temp_v,'CDataMapping','scaled')
+end 

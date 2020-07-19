@@ -24,12 +24,30 @@
 ## Created: 2020-04-15
 
 function [conf, data] = init (conf)
-
+  
+if strcmp(conf.DataType, 'FMradio') 
+   conf.Fs = 0.2e6; % [Hz]
+   conf.Fc = 100e6; % [Hz]
+   conf.MaxDist = 400e3; %  [m]
+   conf.MaxSpeedKmH = 900; % [km/h]  
+elseif strcmp(conf.DataType, 'DVBT_fs5')
+   conf.Fs = 5e6; % [Hz]
+   conf.Fc = 520e6; % [Hz]
+   conf.MaxDist = 300e3; %  [m]
+   conf.MaxSpeedKmH = 900; % [km/h]
+elseif strcmp(conf.DataType, 'DVBT_fs26')
+   conf.Fs = 2.6e6; % [Hz]
+   conf.Fc = 520e6; % [Hz]
+   conf.MaxDist = 300e3; %  [m]
+   conf.MaxSpeedKmH = 500; % [km/h]
+elseif strcmp(conf.DataType, 'DAB')
+   conf.Fs = 4e6; % [Hz]
+   conf.Fc = 570e6; % [Hz]
+   conf.MaxDist = 300e3; %  [m]
+   conf.MaxSpeedKmH = 900; % [km/h]
+end
 % Variable to modified
-conf.Fs = 4e6; % [Hz]
-conf.Fc = 570e6; % [Hz]
-conf.MaxDist = 300e3; %  [m]
-conf.MaxSpeedKmH = 9e3; % [km/h]
+c0 = 3e8;
 conf.OnePartLen = 14e6;
 
 full_filename = [conf.filename, '.bin']
@@ -41,9 +59,9 @@ data = temp(1:2:end) + 1i*temp(2:2:end);
 % Variable to calc
 conf.Ts = 1/conf.Fs;
 conf.c0 = 3e8;
+
 conf.SpaceResolution = conf.Ts * conf.c0; % s = t*v // t = s/v
 conf.MaxBins = ceil( conf.MaxDist / conf.SpaceResolution);
-conf.MaxSpeedMS = conf.MaxSpeedKmH * 3.6 ; % m/s
 conf.length = size(data,1);
 
 
@@ -53,9 +71,18 @@ data(end-reziduum+1:end)=[];
 data = reshape(data,[],parts);
 
 conf.length = size(data,1);
-conf.n_cycle = size(data,2)
+conf.n_cycle = size(data,2);
 
-conf.f_list = -80:0.5:80;
+conf.MaxDoppler =  - conf.Fc + conf.Fc * (conf.c0/(conf.c0 - (conf.MaxSpeedKmH/3.6) ));
+conf.MaxDoppler = round(conf.MaxDoppler);
+
+if 1
+  n = 200;
+  conf.f_list = linspace(-conf.MaxDoppler,conf.MaxDoppler,n);
+else
+   conf.f_list = -80:0.5:80;
+   conf.f_list = -10:10:10;
+end
 
 fprintf('\nMaximum I : %3.0f, R : %3.0f. \n',max(imag(data)),max(real(data)));
 
